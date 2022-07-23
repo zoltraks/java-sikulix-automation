@@ -1,4 +1,4 @@
-package pl.alyx.robot.sikulix.structure.scenario;
+package pl.alyx.robot.sikulix.structure;
 
 public class Step {
 

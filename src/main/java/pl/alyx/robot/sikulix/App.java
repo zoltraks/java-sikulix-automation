@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.sikuli.script.FindFailed;
 import org.sikuli.script.ImagePath;
 import org.sikuli.script.Screen;
-import pl.alyx.robot.sikulix.logic.Automation;
-import pl.alyx.robot.sikulix.structure.configuration.Configuration;
-import pl.alyx.robot.sikulix.structure.scenario.Scenario;
-import pl.alyx.robot.sikulix.structure.scenario.Step;
+import pl.alyx.robot.sikulix.structure.Configuration;
+import pl.alyx.robot.sikulix.structure.Scenario;
+import pl.alyx.robot.sikulix.structure.Step;
 import pl.alyx.robot.sikulix.utility.StringUtility;
 
 import javax.swing.*;
@@ -34,15 +34,13 @@ public class App {
         }
 
         if (StringUtility.StringToBoolean(state.configuration.verbose)) {
-            System.out.println(String.format("ImagePath: %s", ImagePath.getBundlePath()));
+            System.out.printf("ImagePath: %s%n", ImagePath.getBundlePath());
         }
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (UnsupportedLookAndFeelException e) {
-        } catch (ClassNotFoundException e) {
-        } catch (InstantiationException e) {
-        } catch (IllegalAccessException e) {
+        } catch (UnsupportedLookAndFeelException | IllegalAccessException |
+                 InstantiationException | ClassNotFoundException ignored) {
         }
 
         return this;
@@ -61,12 +59,12 @@ public class App {
         }
 
         if (StringUtility.StringToBoolean(state.configuration.verbose)) {
-            System.out.println(String.format("ImagePath: %s", ImagePath.getBundlePath()));
+            System.out.printf("ImagePath: %s%n", ImagePath.getBundlePath());
         }
 
         for (Step step : scenario.steps) {
             try {
-                new Automation(state, step).take();
+                new Automation(state, step).step();
             } catch (FindFailed eFindFailed) {
                 eFindFailed.printStackTrace();
             }
@@ -75,24 +73,23 @@ public class App {
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public App dump() {
         return this;
     }
 
     private boolean readConfiguration() throws IOException {
-        String configurationFile = null;
+        String configurationFile;
         configurationFile = state.configurationFile;
         if (null == configurationFile || 0 == configurationFile.length()) {
             configurationFile = Global.CONFIGURATION_FILE;
         }
-        if (null != configurationFile && 0 < configurationFile.length()) {
-            configurationFile = Paths.get(configurationFile).toAbsolutePath().toString();
-            String json = new String(Files.readAllBytes(Paths.get(configurationFile)), StandardCharsets.UTF_8);
-            System.out.println(json);
-            Gson gson = new GsonBuilder()
-                    .create();
-            this.state.configuration = (Configuration)gson.fromJson(json, Configuration.class);
-        }
+        configurationFile = Paths.get(configurationFile).toAbsolutePath().toString();
+        String json = new String(Files.readAllBytes(Paths.get(configurationFile)), StandardCharsets.UTF_8);
+        System.out.println(json);
+        Gson gson = new GsonBuilder()
+                .create();
+        this.state.configuration = gson.fromJson(json, Configuration.class);
         return true;
     }
 }

@@ -73,4 +73,32 @@ public final class StringUtility {
 
     //endregion
 
+    public static String QuoteVolatile(String text, String quote, String escape) {
+        if (null == text || 0 == text.length()) {
+            return text;
+        }
+        boolean need = text.contains(quote);
+        if (!need) {
+            for (int i = 0; i < text.length(); i++) {
+                char c = text.charAt(i);
+                if (32 >= c) {
+                    need = true;
+                    break;
+                }
+            }
+        }
+        if (need) {
+            text = Quote(text, quote, escape);
+        }
+        return text;
+    }
+
+    public static String QuoteVolatile(String text, String quote) {
+        return QuoteVolatile(text, quote, quote);
+    }
+
+    public static String QuoteVolatile(String text) {
+        return QuoteVolatile(text, "\"");
+    }
+
 }

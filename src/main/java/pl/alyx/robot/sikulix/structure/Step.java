@@ -35,40 +35,40 @@ public class Step {
     public String toString() {
         List<String> list = new ArrayList<>();
         if (StringUtility.isNotEmpty(label)) {
-            list.add(String.format("LABEL %s", label));
+            list.add(String.format("LABEL %s", StringUtility.QuoteVolatile(label)));
         }
         if (StringUtility.isNotEmpty(path)) {
-            list.add(String.format("PATH %s", path));
+            list.add(String.format("PATH %s", StringUtility.QuoteVolatile(path)));
         }
         if (StringUtility.isNotEmpty(wait)) {
-            list.add(String.format("WAIT %s", wait));
+            list.add(String.format("WAIT %s", StringUtility.QuoteVolatile(wait)));
         }
         if (StringUtility.isNotEmpty(mouse)) {
-            list.add(String.format("MOUSE %s", StringUtility.Quote(mouse)));
+            list.add(String.format("MOUSE %s", StringUtility.QuoteVolatile(mouse)));
         }
         if (StringUtility.isNotEmpty(find)) {
-            list.add(String.format("FIND %s", click));
+            list.add(String.format("FIND %s", StringUtility.QuoteVolatile(find)));
         }
         if (StringUtility.isNotEmpty(click)) {
-            list.add(String.format("CLICK %s", click));
+            list.add(String.format("CLICK %s", StringUtility.QuoteVolatile(click)));
         }
         if (StringUtility.isNotEmpty(type)) {
-            list.add(String.format("TYPE %s", type));
+            list.add(String.format("TYPE %s", StringUtility.QuoteVolatile(type)));
         }
         if (StringUtility.isNotEmpty(message)) {
-            list.add(String.format("MESSAGE %s", message));
+            list.add(String.format("MESSAGE %s", StringUtility.QuoteVolatile(message)));
+        }
+        if (StringUtility.isNotEmpty(run)) {
+            list.add(String.format("RUN %s", StringUtility.QuoteVolatile(run)));
         }
         if (StringUtility.isNotEmpty(when)) {
-            list.add(String.format("WHEN %s", when));
-        }
-        if (StringUtility.isNotEmpty(when)) {
-            list.add(String.format("WHEN %s", when));
+            list.add(String.format("WHEN %s", StringUtility.QuoteVolatile(when)));
         }
         if (StringUtility.isNotEmpty(then)) {
-            list.add(String.format("THEN %s", then));
+            list.add(String.format("THEN %s", StringUtility.QuoteVolatile(then)));
         }
         if (StringUtility.isNotEmpty(jump)) {
-            list.add(String.format("JUMP %s", jump));
+            list.add(String.format("JUMP %s", StringUtility.QuoteVolatile(jump)));
         }
         return String.join(String.format("%n"), list);
     }

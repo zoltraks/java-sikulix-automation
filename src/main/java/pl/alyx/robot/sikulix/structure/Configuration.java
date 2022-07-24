@@ -10,7 +10,7 @@ public class Configuration {
 
     public String play;
 
-    public List<String> plays;
+    public List<String> playlist;
 
     public String delay;
 

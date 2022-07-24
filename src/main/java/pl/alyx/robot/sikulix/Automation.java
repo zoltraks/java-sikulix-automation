@@ -20,7 +20,7 @@ public class Automation {
         this.step = step;
     }
 
-    public void step() throws FindFailed {
+    public boolean step() {
 
         Screen screen = this.state.screen;
 
@@ -47,7 +47,11 @@ public class Automation {
 
         String click = this.step.click;
         if (null != click && 0 < click.length()) {
-            screen.click(click);
+            try {
+                screen.click(click);
+            } catch (FindFailed e) {
+                return false;
+            }
         }
 
         String type = this.step.type;
@@ -59,6 +63,8 @@ public class Automation {
         if (null != message && 0 < message.length()) {
             JOptionPane.showMessageDialog(null, message);
         }
+
+        return true;
 
     }
 }

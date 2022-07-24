@@ -11,12 +11,12 @@ public final class StringUtility {
             return false;
         }
         switch (value.toUpperCase()) {
+            case "0":
             case "FALSE":
             case "NO":
             case "NULL":
             case "NONE":
             case "N":
-            case "0":
                 return false;
             default:
                 return true;
@@ -33,14 +33,44 @@ public final class StringUtility {
             try {
                 result = Double.parseDouble(value);
             }
-            catch (NumberFormatException e) {
+            catch (NumberFormatException ignored) {
             }
         }
         return result;
     }
 
     public static boolean isNotEmpty(String value) {
-        return null == value ? false : 0 < value.trim().length();
+        return null != value && 0 < value.trim().length();
     }
+
+    //region Quote
+
+    public static String Quote(String text, String quote, String escape) {
+        if (null == text) {
+            text = "";
+        } else {
+            text = text.replace(quote, escape + quote);
+        }
+        text = quote + text + quote;
+        return text;
+    }
+
+    public static String Quote(String text, char quote, char escape) {
+        return Quote(text, "" + quote, "" + escape);
+    }
+
+    public static String Quote(String text, char quote) {
+        return Quote(text, "" + quote, "" + quote);
+    }
+
+    public static String Quote(String text, String quote) {
+        return Quote(text, quote, quote);
+    }
+
+    public static String Quote(String text) {
+        return Quote(text, "\"", "\"");
+    }
+
+    //endregion
 
 }

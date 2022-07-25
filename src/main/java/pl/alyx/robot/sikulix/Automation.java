@@ -4,6 +4,7 @@ import org.sikuli.script.Button;
 import org.sikuli.script.FindFailed;
 import org.sikuli.script.Screen;
 import pl.alyx.robot.sikulix.structure.Step;
+import pl.alyx.robot.sikulix.utility.StringUtility;
 
 import javax.swing.*;
 
@@ -20,7 +21,10 @@ public class Automation {
         this.step = step;
     }
 
-    public boolean step() {
+    public Result step() {
+
+        Result result = new Result();
+        result.success = true;
 
         Screen screen = this.state.screen;
 
@@ -50,7 +54,9 @@ public class Automation {
             try {
                 screen.click(click);
             } catch (FindFailed e) {
-                return false;
+                result.error = e.getMessage();
+                result.success = false;
+                return result;
             }
         }
 
@@ -64,7 +70,12 @@ public class Automation {
             JOptionPane.showMessageDialog(null, message);
         }
 
-        return true;
+        String jump = this.step.jump;
+        if (StringUtility.isNotEmpty(jump)) {
+            result.jump = jump;
+        }
+
+        return result;
 
     }
 }

@@ -100,11 +100,13 @@ public class App {
                 }
             }
         }
-        Scenario[] array = new Scenario[list.size()];
-        int i = 0;
-        for (Scenario scenario : list) {
-            array[i++] = scenario;
-        }
+//        Scenario[] array = new Scenario[list.size()];
+//        int i = 0;
+//        for (Scenario scenario : list) {
+//            array[i++] = scenario;
+//        }
+        Scenario[] array;
+        array = list.toArray(new Scenario[0]);
         return array;
     }
 

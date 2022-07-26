@@ -123,6 +123,37 @@ Display message dialog.
 }
 ```
 
+## Scripting ##
+
+Instead of using scenario in JSON it is possible to create script file and point to it ore more than one in ``config.json``.
+
+```json
+{
+  "play": "scenario"
+}
+```
+
+### ``scenario.script``
+
+```
+DELAY 0.5
+LABEL 10
+PATH C:/EXAMPLE/Scenario/
+CLICK windows_11_start.png
+MOUSE RIGHT
+WAIT 0.5
+MOUSE UP
+WAIT 1.5
+CLICK windows_11_type_search.png
+WAIT 1.5
+TYPE notepad
+WAIT 1.5
+CLICK search_notepad.png
+WAIT 1.5
+MESSAGE "Hello, World"
+JUMP 10
+```
+
 ## Build ##
 
 Use [Apache Maven](https://maven.apache.org/) to build project.

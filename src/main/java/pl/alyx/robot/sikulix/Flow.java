@@ -28,6 +28,8 @@ public class Flow {
             int labelIndex = findLabel(result.jump);
             if (0 <= labelIndex) {
                 index = labelIndex;
+            } else {
+                System.out.printf("Can't jump to %s%n", StringUtility.QuoteVolatile(result.jump));
             }
         }
         return result.success;

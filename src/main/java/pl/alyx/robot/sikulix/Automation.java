@@ -1,12 +1,16 @@
 package pl.alyx.robot.sikulix;
 
+import org.python.antlr.ast.Str;
 import org.sikuli.script.Button;
 import org.sikuli.script.FindFailed;
+import org.sikuli.script.ImagePath;
 import org.sikuli.script.Screen;
 import pl.alyx.robot.sikulix.structure.Step;
 import pl.alyx.robot.sikulix.utility.StringUtility;
 
 import javax.swing.*;
+
+import java.nio.file.Paths;
 
 import static pl.alyx.robot.sikulix.utility.StringUtility.StringToDouble;
 
@@ -28,9 +32,20 @@ public class Automation {
 
         Screen screen = this.state.screen;
 
+        boolean verbose = StringUtility.StringToBoolean(this.state.configuration.verbose);
+
         double wait = StringToDouble(this.step.wait);
         if (wait > 0.0) {
             screen.wait(wait);
+        }
+
+        String path = this.step.path;
+
+        if (StringUtility.isNotEmpty(path)) {
+            ImagePath.setBundlePath(Paths.get(path).toAbsolutePath().toString());
+            if (verbose) {
+                System.out.printf("ImagePath: %s%n", ImagePath.getBundlePath());
+            }
         }
 
         String mouse = this.step.mouse;

@@ -3,10 +3,13 @@ package pl.alyx.robot.sikulix;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import org.apache.commons.collections.ArrayStack;
+import org.apache.commons.collections.list.AbstractLinkedList;
 import org.sikuli.script.ImagePath;
 import org.sikuli.script.Screen;
 import pl.alyx.robot.sikulix.structure.Configuration;
 import pl.alyx.robot.sikulix.structure.Scenario;
+import pl.alyx.robot.sikulix.structure.Step;
 import pl.alyx.robot.sikulix.utility.FileUtility;
 import pl.alyx.robot.sikulix.utility.StringUtility;
 
@@ -17,6 +20,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class App {
 
@@ -55,7 +60,15 @@ public class App {
 
         Scenario[] scenarioArray = collectScenarioArray();
 
+        int index = 0;
+
         for (Scenario scenario : scenarioArray) {
+
+            index++;
+
+            if (verbose) {
+                System.out.printf("Playing scenario %s (%d)%n", scenario.name, index);
+            }
 
             if (StringUtility.isNotEmpty(scenario.path)) {
                 ImagePath.setBundlePath(Paths.get(scenario.path).toAbsolutePath().toString());
@@ -94,6 +107,9 @@ public class App {
                 String c = configuration.playlist.get(i);
                 Scenario s = readScenarioFromFile(c);
                 if (null != s) {
+                    if (StringUtility.isEmpty(s.name)) {
+                        s.name = c;
+                    }
                     list.add(s);
                 } else if (verbose) {
                     System.out.printf("Can't read scenario from %s%n", c);
@@ -148,10 +164,45 @@ public class App {
             Gson gson = new GsonBuilder()
                     .create();
             Configuration configuration = gson.fromJson(content, Configuration.class);
+
             return configuration.scenario;
         }
 
-        return null;
+        Scenario scriptScenario;
+        scriptScenario = parseScenarioScript(content);
+        return scriptScenario;
+    }
+
+    private Scenario parseScenarioScript(String content) {
+        String pattern = "\\s*\n" +
+                "(?:\n" +
+                "\\#[^\\r\\n]*\n" +
+                "|\n" +
+                "([\\p{L}@$%][\\p{L}0-9_\\.\\-@$%!]*)\n" +
+                "(?:[\\ \\t]*((?:(?:\"(?:\"\"|[^\"])*\"|[^\\s]+)[\\ \\t]*)*))?\n" +
+                ")";
+        boolean found = false;
+        int flags = Pattern.COMMENTS;
+        Pattern r = Pattern.compile(pattern, flags);
+        Matcher m = r.matcher(content);
+        List<Step> steps = new ArrayList<>();
+        while (m.find()) {
+            String key =  m.group(1);
+            String value = m.group(2);
+            if (StringUtility.isEmpty(key)) {
+                continue;
+            }
+            Step step = Step.create(key, value);
+            if (null != step) {
+                steps.add(step);
+            }
+        }
+        Scenario scenario = null;
+        if (0 < steps.size()) {
+            scenario = new Scenario();
+            scenario.steps = steps;
+        }
+        return scenario;
     }
 
     @SuppressWarnings("UnusedReturnValue")

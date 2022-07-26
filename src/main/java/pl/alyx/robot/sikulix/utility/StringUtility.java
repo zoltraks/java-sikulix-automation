@@ -101,4 +101,7 @@ public final class StringUtility {
         return QuoteVolatile(text, "\"");
     }
 
+    public static boolean isEmpty(String text) {
+        return !isNotEmpty(text);
+    }
 }

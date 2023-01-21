@@ -3,10 +3,9 @@ package pl.alyx.robot.sikulix;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import org.apache.commons.collections.ArrayStack;
-import org.apache.commons.collections.list.AbstractLinkedList;
-import org.sikuli.script.ImagePath;
+import org.apache.commons.cli.*;
 import org.sikuli.script.Screen;
+import pl.alyx.robot.sikulix.logic.Flow;
 import pl.alyx.robot.sikulix.structure.Configuration;
 import pl.alyx.robot.sikulix.structure.Scenario;
 import pl.alyx.robot.sikulix.structure.Step;
@@ -15,8 +14,11 @@ import pl.alyx.robot.sikulix.utility.StringUtility;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,21 +29,44 @@ public class App {
 
     public State state = new State();
 
-    public App parse(String[] args) {
-        if (args.length > 0) {
-            state.configurationFile = args[0];
+    public App parseArgs(String[] args) {
+
+        Options options = new Options();
+        options.addOption("v", "verbose", false, "give me more messsages");
+        CommandLineParser parser = new DefaultParser();
+        try {
+            CommandLine cmdLine = parser.parse(options, args);
+            String[] cmdLineArgs = cmdLine.getArgs();
+            if (cmdLineArgs.length > 0) {
+                state.configurationFile = cmdLineArgs[0];
+            }
+            if (cmdLine.hasOption("verbose")) {
+                state.settings.setVerbose(true);
+            }
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
+
+//        if (args.length > 0) {
+//            state.configurationFile = args[0];
+//        }
+
         return this;
     }
 
     public App initialize() throws Exception {
+
         if (!readConfiguration()) {
             throw new Exception((String) null);
         }
 
-        if (StringUtility.StringToBoolean(state.configuration.verbose)) {
-            System.out.printf("ImagePath: %s%n", ImagePath.getBundlePath());
+        if (state.configuration.verbose != null) {
+            state.settings.setVerbose(StringUtility.stringToBoolean(state.configuration.verbose));
         }
+
+//        if (state.settings.isVerbose()) {
+//            System.out.printf("ImagePath: %s%n", ImagePath.getBundlePath());
+//        }
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -50,13 +75,12 @@ public class App {
         }
 
         return this;
+
     }
 
-    public App start() {
+    public App start() throws URISyntaxException {
 
         this.state.screen = new Screen();
-
-        boolean verbose = StringUtility.StringToBoolean(state.configuration.verbose);
 
         Scenario[] scenarioArray = collectScenarioArray();
 
@@ -66,21 +90,23 @@ public class App {
 
             index++;
 
-            if (verbose) {
-                System.out.printf("Playing scenario %s (%d)%n", scenario.name, index);
-            }
-
-            if (StringUtility.isNotEmpty(scenario.path)) {
-                ImagePath.setBundlePath(Paths.get(scenario.path).toAbsolutePath().toString());
-                if (verbose) {
-                    System.out.printf("ImagePath: %s%n", ImagePath.getBundlePath());
+            if (state.settings.isVerbose()) {
+                String name = StringUtility.isEmpty(scenario.name) ? "unnamed scenario"
+                        : String.format("scenario %s", scenario.name);
+                int count = scenarioArray.length;
+                boolean single = 2 > count;
+                if (single) {
+                    System.out.printf("Playing %s%n", name);
+                } else {
+                    System.out.printf("Playing %s (%d of %d)%n", name, index, count);
                 }
             }
 
-            Flow flow = new Flow(this.state, scenario);
-
-            //noinspection StatementWithEmptyBody
-            while (flow.next());
+            try (Flow flow = new Flow(this.state, scenario)) {
+                while (flow.next()) ;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 
         }
 
@@ -90,7 +116,7 @@ public class App {
     private Scenario[] collectScenarioArray() {
         List<Scenario> list = new ArrayList<>();
         Configuration configuration = this.state.configuration;
-        boolean verbose = StringUtility.StringToBoolean(configuration.verbose);
+        boolean verbose = StringUtility.stringToBoolean(configuration.verbose);
         if (configuration.scenario != null) {
             list.add(configuration.scenario);
         }
@@ -131,7 +157,7 @@ public class App {
             return null;
         }
 
-        String[] alternatives = { ".json", ".script" };
+        String[] alternatives = {".json", ".script"};
 
         boolean fileExists = FileUtility.fileExists(file);
 
@@ -152,7 +178,7 @@ public class App {
         String content;
 
         try {
-             content = new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8);
+            content = new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -187,12 +213,15 @@ public class App {
         Matcher m = r.matcher(content);
         List<Step> steps = new ArrayList<>();
         while (m.find()) {
-            String key =  m.group(1);
+            String key = m.group(1);
             String value = m.group(2);
             if (StringUtility.isEmpty(key)) {
                 continue;
             }
             Step step = Step.create(key, value);
+            if (null == step && state.settings.isVerbose()) {
+                System.out.printf("Ignoring unknown script operation %s %s%n", key, value);
+            }
             if (null != step) {
                 steps.add(step);
             }
@@ -217,7 +246,14 @@ public class App {
             configurationFile = Global.CONFIGURATION_FILE;
         }
         configurationFile = Paths.get(configurationFile).toAbsolutePath().toString();
-        String json = new String(Files.readAllBytes(Paths.get(configurationFile)), StandardCharsets.UTF_8);
+        String json;
+        Path path = Paths.get(configurationFile);
+        try {
+            json = new String(Files.readAllBytes(Paths.get(configurationFile)), StandardCharsets.UTF_8);
+        } catch (NoSuchFileException ingored) {
+            System.out.printf("Error reading configuration file, no such file: %s%n", path.toAbsolutePath());
+            return false;
+        }
         Gson gson = new GsonBuilder()
                 .create();
         this.state.configuration = gson.fromJson(json, Configuration.class);

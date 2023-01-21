@@ -7,12 +7,14 @@ public class Main {
         //new Test().run();
         try {
             new App()
-                    .parse(args)
+                    .parseArgs(args)
                     .initialize()
                     .start()
                     .dump();
         } catch (Exception x) {
-            x.printStackTrace();
+            if (x.getMessage() != null && x.getMessage().length() > 0) {
+                x.printStackTrace();
+            }
         }
     }
 

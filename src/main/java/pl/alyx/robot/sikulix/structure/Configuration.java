@@ -12,6 +12,6 @@ public class Configuration {
 
     public List<String> playlist;
 
-    public String delay;
+    public String path;
 
 }

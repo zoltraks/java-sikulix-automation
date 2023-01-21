@@ -1,18 +1,19 @@
-package pl.alyx.robot.sikulix;
+package pl.alyx.robot.sikulix.logic;
 
-import org.python.antlr.ast.Str;
+import org.sikuli.basics.Settings;
 import org.sikuli.script.Button;
 import org.sikuli.script.FindFailed;
 import org.sikuli.script.ImagePath;
 import org.sikuli.script.Screen;
+import pl.alyx.robot.sikulix.Result;
+import pl.alyx.robot.sikulix.State;
 import pl.alyx.robot.sikulix.structure.Step;
 import pl.alyx.robot.sikulix.utility.StringUtility;
 
 import javax.swing.*;
-
 import java.nio.file.Paths;
 
-import static pl.alyx.robot.sikulix.utility.StringUtility.StringToDouble;
+import static pl.alyx.robot.sikulix.utility.StringUtility.stringToDouble;
 
 public class Automation {
 
@@ -32,9 +33,9 @@ public class Automation {
 
         Screen screen = this.state.screen;
 
-        boolean verbose = StringUtility.StringToBoolean(this.state.configuration.verbose);
+        boolean verbose = state.settings.isVerbose();
 
-        double wait = StringToDouble(this.step.wait);
+        double wait = stringToDouble(this.step.wait);
         if (wait > 0.0) {
             screen.wait(wait);
         }
@@ -62,6 +63,19 @@ public class Automation {
             if (mouse.equalsIgnoreCase("UP")) {
                 screen.mouseUp();
             }
+        }
+
+        String similarity = this.step.similarity;
+        if (null != similarity && 0 < similarity.length()) {
+            double value = StringUtility.stringToDouble(similarity);
+            if (value > 0) {
+                Settings.MinSimilarity = value;
+            }
+        }
+
+        String print = this.step.print;
+        if (null != print && 0 < print.length()) {
+            System.out.println(print);
         }
 
         String click = this.step.click;

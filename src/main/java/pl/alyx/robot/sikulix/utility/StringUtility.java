@@ -2,7 +2,7 @@ package pl.alyx.robot.sikulix.utility;
 
 public final class StringUtility {
 
-    public static boolean StringToBoolean(String value) {
+    public static boolean stringToBoolean(String value) {
         if (null == value) {
             return false;
         }
@@ -23,17 +23,16 @@ public final class StringUtility {
         }
     }
 
-    public static String StringValue(String value) {
+    public static String stringValue(String value) {
         return null == value ? "" : value;
     }
 
-    public static double StringToDouble(String value) {
+    public static double stringToDouble(String value) {
         double result = 0;
         if (null != value && 0 < value.length()) {
             try {
                 result = Double.parseDouble(value);
-            }
-            catch (NumberFormatException ignored) {
+            } catch (NumberFormatException ignored) {
             }
         }
         return result;
@@ -45,7 +44,7 @@ public final class StringUtility {
 
     //region Quote
 
-    public static String Quote(String text, String quote, String escape) {
+    public static String quote(String text, String quote, String escape) {
         if (null == text) {
             text = "";
         } else {
@@ -55,20 +54,20 @@ public final class StringUtility {
         return text;
     }
 
-    public static String Quote(String text, char quote, char escape) {
-        return Quote(text, "" + quote, "" + escape);
+    public static String quote(String text, char quote, char escape) {
+        return quote(text, "" + quote, "" + escape);
     }
 
-    public static String Quote(String text, char quote) {
-        return Quote(text, "" + quote, "" + quote);
+    public static String quote(String text, char quote) {
+        return quote(text, "" + quote, "" + quote);
     }
 
-    public static String Quote(String text, String quote) {
-        return Quote(text, quote, quote);
+    public static String quote(String text, String quote) {
+        return quote(text, quote, quote);
     }
 
-    public static String Quote(String text) {
-        return Quote(text, "\"", "\"");
+    public static String quote(String text) {
+        return quote(text, "\"", "\"");
     }
 
     //endregion
@@ -88,7 +87,7 @@ public final class StringUtility {
             }
         }
         if (need) {
-            text = Quote(text, quote, escape);
+            text = quote(text, quote, escape);
         }
         return text;
     }

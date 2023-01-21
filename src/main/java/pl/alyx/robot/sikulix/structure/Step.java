@@ -33,6 +33,10 @@ public class Step {
 
     public String jump;
 
+    public String similarity;
+
+    public String print;
+
     public static Step create(String key, String value) {
         if (null == key) {
             return null;
@@ -82,6 +86,12 @@ public class Step {
                 break;
             case "JUMP":
                 step.jump = value;
+                break;
+            case "SIMILARITY":
+                step.similarity = value;
+                break;
+            case "PRINT":
+                step.print = value;
                 break;
             default:
                 step = null;

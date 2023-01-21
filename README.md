@@ -5,9 +5,9 @@ Sikulix Automation
 
 This program is written in Java and is using [SikuliX](http://www.sikulix.com/) library.
 
-By default program is looking for ``config.json`` in current working directory.
+Program is reading configuration from ``config.json`` file by default.
 
-You may specify alternate file as first argument.
+You may specify alternate configuration file as first argument.
 
 ```
 java -jar sikulix-automation.jar config.json
@@ -18,6 +18,41 @@ java -jar sikulix-automation.jar config.json
 Create JSON file ``config.json`` and execute program with ``java -jar`` command.
 
 Scenario section defines base path for image files and array of steps to take.
+
+### ``config.json`` ###
+
+```json
+{
+  "verbose": "true",
+  "scenario": {
+    "name": "Hello",
+    "steps": [
+      {
+        "print": "Hello, World!"
+      },
+      {
+        "wait": "3",
+        "print": "Goodbye, cruel world."
+      },
+      {
+        "wait": "3"
+      }
+    ]
+  }
+}
+```
+
+Above example will simply print text with little delay. 
+
+```
+Playing scenario Hello
+Hello, World!
+Goodbye, cruel world.
+```
+
+More complex example is on the way.
+
+### ``config.json`` ###
 
 ```json
 {
@@ -58,6 +93,48 @@ Scenario section defines base path for image files and array of steps to take.
       {}
     ]
   }
+}
+```
+
+Alternatively scenario file can be defined in separate ``scenario.json`` file.
+
+### ``config.json`` ###
+
+```json
+{
+  "play": "scenario.json"
+}
+```
+
+### ``scenario.json`` ###
+
+```json
+{
+  "scenario": {
+    "steps": [
+      {
+        "print": "Hello, World."
+      }
+    ]
+  }
+}
+```
+
+The same scenario can be written in script file.
+
+### ``scenario.script`` ###
+
+```
+PRINT Hello, World.
+```
+
+Scenario file can be set without file extension, program will try to find valid json or script file.
+
+### ``config.json`` ###
+
+```json
+{
+  "play": "scenario"
 }
 ```
 

@@ -14,4 +14,6 @@ public class Configuration {
 
     public String path;
 
+    public String delay;
+
 }

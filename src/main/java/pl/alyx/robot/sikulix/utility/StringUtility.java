@@ -103,4 +103,13 @@ public final class StringUtility {
     public static boolean isEmpty(String text) {
         return !isNotEmpty(text);
     }
+
+    public static boolean isWhite(String text) {
+        return null == text || 0 == text.trim().length();
+    }
+
+    public static boolean isNotWhite(String text) {
+        return null != text && 0 < text.trim().length();
+    }
+
 }

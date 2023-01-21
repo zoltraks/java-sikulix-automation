@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 public class App {
 
-    public State state = new State();
+    public Context context = new Context();
 
     public App parseArgs(String[] args) {
 
@@ -38,10 +38,10 @@ public class App {
             CommandLine cmdLine = parser.parse(options, args);
             String[] cmdLineArgs = cmdLine.getArgs();
             if (cmdLineArgs.length > 0) {
-                state.configurationFile = cmdLineArgs[0];
+                context.configurationFile = cmdLineArgs[0];
             }
             if (cmdLine.hasOption("verbose")) {
-                state.settings.setVerbose(true);
+                context.settings.setVerbose(true);
             }
         } catch (ParseException e) {
             throw new RuntimeException(e);
@@ -60,8 +60,8 @@ public class App {
             throw new Exception((String) null);
         }
 
-        if (state.configuration.verbose != null) {
-            state.settings.setVerbose(StringUtility.stringToBoolean(state.configuration.verbose));
+        if (context.configuration.verbose != null) {
+            context.settings.setVerbose(StringUtility.stringToBoolean(context.configuration.verbose));
         }
 
 //        if (state.settings.isVerbose()) {
@@ -80,7 +80,7 @@ public class App {
 
     public App start() throws URISyntaxException {
 
-        this.state.screen = new Screen();
+        this.context.screen = new Screen();
 
         Scenario[] scenarioArray = collectScenarioArray();
 
@@ -90,7 +90,7 @@ public class App {
 
             index++;
 
-            if (state.settings.isVerbose()) {
+            if (context.settings.isVerbose()) {
                 String name = StringUtility.isEmpty(scenario.name) ? "unnamed scenario"
                         : String.format("scenario %s", scenario.name);
                 int count = scenarioArray.length;
@@ -102,7 +102,7 @@ public class App {
                 }
             }
 
-            try (Flow flow = new Flow(this.state, scenario)) {
+            try (Flow flow = new Flow(this.context, scenario)) {
                 while (flow.next()) ;
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -115,7 +115,7 @@ public class App {
 
     private Scenario[] collectScenarioArray() {
         List<Scenario> list = new ArrayList<>();
-        Configuration configuration = this.state.configuration;
+        Configuration configuration = this.context.configuration;
         boolean verbose = StringUtility.stringToBoolean(configuration.verbose);
         if (configuration.scenario != null) {
             list.add(configuration.scenario);
@@ -219,7 +219,7 @@ public class App {
                 continue;
             }
             Step step = Step.create(key, value);
-            if (null == step && state.settings.isVerbose()) {
+            if (null == step && context.settings.isVerbose()) {
                 System.out.printf("Ignoring unknown script operation %s %s%n", key, value);
             }
             if (null != step) {
@@ -241,7 +241,7 @@ public class App {
 
     private boolean readConfiguration() throws IOException, JsonSyntaxException {
         String configurationFile;
-        configurationFile = state.configurationFile;
+        configurationFile = context.configurationFile;
         if (null == configurationFile || 0 == configurationFile.length()) {
             configurationFile = Global.CONFIGURATION_FILE;
         }
@@ -256,7 +256,7 @@ public class App {
         }
         Gson gson = new GsonBuilder()
                 .create();
-        this.state.configuration = gson.fromJson(json, Configuration.class);
+        this.context.configuration = gson.fromJson(json, Configuration.class);
         return true;
     }
 }

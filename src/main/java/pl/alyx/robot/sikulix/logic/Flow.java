@@ -3,6 +3,7 @@ package pl.alyx.robot.sikulix.logic;
 import org.sikuli.basics.Settings;
 import org.sikuli.script.ImagePath;
 import pl.alyx.robot.sikulix.Result;
+import pl.alyx.robot.sikulix.Context;
 import pl.alyx.robot.sikulix.State;
 import pl.alyx.robot.sikulix.structure.Scenario;
 import pl.alyx.robot.sikulix.structure.Step;
@@ -16,14 +17,14 @@ import java.nio.file.Paths;
 
 public class Flow implements AutoCloseable {
 
-    private final Scenario scenario;
-
-    private final State state;
-
-    public Flow(State state, Scenario scenario) {
-        this.state = state;
+    public Flow(Context context, Scenario scenario) {
+        this.context = context;
         this.scenario = scenario;
     }
+
+    private final Scenario scenario;
+
+    private final Context context;
 
     private int index;
 
@@ -39,7 +40,13 @@ public class Flow implements AutoCloseable {
         }
         Step step = this.scenario.steps.get(index);
         index++;
-        Result result = new Automation(state, step).step();
+        Result result = new Automation(context, step).step();
+        if (!result.success) {
+            if (StringUtility.isNotEmpty(result.error)) {
+                System.out.println(result.error);
+                return false;
+            }
+        }
         if (StringUtility.isNotEmpty(result.jump)) {
             int labelIndex = findLabel(result.jump);
             if (0 <= labelIndex) {
@@ -70,12 +77,16 @@ public class Flow implements AutoCloseable {
     }
 
     private void reset() {
+        context.state = new State();
+        context.state.wait = 3.0;
+        context.state.delay = StringUtility.stringToDouble(context.configuration.delay);
+
         Settings.MinSimilarity = 0.7;
 
         Path path = null;
 
-        if (StringUtility.isNotEmpty(state.configuration.path)) {
-            path = Paths.get(state.configuration.path);
+        if (StringUtility.isNotEmpty(context.configuration.path)) {
+            path = Paths.get(context.configuration.path);
         }
 
         if (StringUtility.isNotEmpty(scenario.path)) {
@@ -91,7 +102,7 @@ public class Flow implements AutoCloseable {
             String newPath = path.toAbsolutePath().toString();
             if (!newPath.equals(oldPath)) {
                 ImagePath.setBundlePath(path.toAbsolutePath().toString());
-                if (state.settings.isVerbose()) {
+                if (context.settings.isVerbose()) {
                     System.out.printf("ImagePath: %s%n", ImagePath.getBundlePath());
                 }
             }

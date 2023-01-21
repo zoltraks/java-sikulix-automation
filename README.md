@@ -144,11 +144,73 @@ Images used to recognize UI elements to click in should be located in current wo
 
 Every step may contain one or more elements from the list below.
 
- - click
- - type
- - mouse
- - message
+ - label
+ - path
+ - delay
  - wait
+ - similarity
+ - print
+ - mouse
+ - find
+ - click
+ - popup
+ - type
+ - message
+ - execute
+ - when
+ - then
+ - jump
+ - pause
+
+### label ###
+
+Mark location with name.
+
+```json
+{
+  "label": "1000"
+}
+```
+
+### path ###
+
+Set path for images.
+
+```json
+{
+  "path": "images"
+}
+```
+
+### delay ###
+
+Set delay for each step.
+
+```json
+{
+  "delay": "3.0"
+}
+```
+
+### wait ###
+
+Set wait time when finding images.
+
+```json
+{
+  "wait": "1.5"
+}
+```
+
+### similarity ###
+
+Set minimum similarity level.
+
+```json
+{
+  "similarity": "0.7"
+}
+```
 
 ### click ###
 
@@ -157,6 +219,16 @@ Click inside UI element specified by image.
 ```json
 {
   "click": "windows_start.png"
+}
+```
+
+### popup ###
+
+Perform right click on UI element specified by image.
+
+```json
+{
+  "popup": "tray_battery.png"
 }
 ```
 
@@ -197,6 +269,16 @@ Display message dialog.
 ```json
 {
   "message": "Hello, World."
+}
+```
+
+### print ###
+
+Print text to standard output.
+
+```json
+{
+  "print": "Hello, World."
 }
 ```
 

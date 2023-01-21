@@ -91,12 +91,12 @@ public class Automation {
             }
         }
 
-        String find = this.step.click;
+        String find = this.step.find;
         if (StringUtility.isNotWhite(find)) {
             try {
                 screen.find(find);
             } catch (FindFailed e) {
-                result.error = e.getMessage();
+                result.error = String.format("Find failed for %s", e.getMessage());
                 result.success = false;
                 return result;
             }
@@ -107,7 +107,7 @@ public class Automation {
             try {
                 screen.click(click);
             } catch (FindFailed e) {
-                result.error = e.getMessage();
+                result.error = String.format("Click failed for %s", e.getMessage());
                 result.success = false;
                 return result;
             }
@@ -118,7 +118,7 @@ public class Automation {
             try {
                 screen.rightClick(popup);
             } catch (FindFailed e) {
-                result.error = e.getMessage();
+                result.error = String.format("Right click failed for %s", e.getMessage());
                 result.success = false;
                 return result;
             }

@@ -6,6 +6,8 @@ public class Configuration {
 
     public String verbose;
 
+    public String ignore;
+
     public Scenario scenario;
 
     public String play;

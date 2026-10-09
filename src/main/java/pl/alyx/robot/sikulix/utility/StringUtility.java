@@ -1,5 +1,8 @@
 package pl.alyx.robot.sikulix.utility;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class StringUtility {
 
     public static boolean stringToBoolean(String value) {
@@ -98,6 +101,49 @@ public final class StringUtility {
 
     public static String QuoteVolatile(String text) {
         return QuoteVolatile(text, "\"");
+    }
+
+    public static List<String> splitTokens(String text) {
+        List<String> list = new ArrayList<>();
+        if (null == text) {
+            return list;
+        }
+        int n = text.length();
+        int i = 0;
+        while (i < n) {
+            while (i < n && Character.isWhitespace(text.charAt(i))) {
+                i++;
+            }
+            if (i >= n) {
+                break;
+            }
+            StringBuilder builder = new StringBuilder();
+            while (i < n && !Character.isWhitespace(text.charAt(i))) {
+                char c = text.charAt(i);
+                if ('"' == c) {
+                    i++;
+                    while (i < n) {
+                        char d = text.charAt(i);
+                        if ('"' == d) {
+                            if (i + 1 < n && '"' == text.charAt(i + 1)) {
+                                builder.append('"');
+                                i += 2;
+                                continue;
+                            }
+                            i++;
+                            break;
+                        }
+                        builder.append(d);
+                        i++;
+                    }
+                } else {
+                    builder.append(c);
+                    i++;
+                }
+            }
+            list.add(builder.toString());
+        }
+        return list;
     }
 
     public static boolean isEmpty(String text) {

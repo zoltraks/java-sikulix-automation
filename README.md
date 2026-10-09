@@ -1,7 +1,7 @@
 Sikulix Automation
 ------------------
 
-**Sikulix Automation** is a simple RPA (robotic process automation) program which interacts with UI by clicking at specified elements on a screen and typing texts. 
+**Sikulix Automation** is a simple RPA (robotic process automation) program which interacts with UI by clicking at specified elements on a screen and typing texts.
 
 This program is written in Java and is using [SikuliX](http://www.sikulix.com/) library.
 
@@ -12,6 +12,13 @@ You may specify alternate configuration file as first argument.
 ```
 java -jar sikulix-automation.jar config.json
 ```
+
+Command line options:
+
+- ``-v``, ``--verbose`` - print more messages.
+- ``-i``, ``--ignore`` - print step errors and continue the scenario instead of stopping it.
+
+The same options can be set in ``config.json`` as ``"verbose": "true"`` and ``"ignore": "true"``. A value in the configuration file overrides the command line flag.
 
 ## Usage ##
 
@@ -42,7 +49,7 @@ Scenario section defines base path for image files and array of steps to take.
 }
 ```
 
-Above example will simply print text with little delay. 
+Above example will simply print text with little delay.
 
 ```
 Playing scenario Hello
@@ -155,6 +162,7 @@ Every step may contain one or more elements from the list below.
  - click
  - popup
  - type
+ - press
  - message
  - execute
  - when
@@ -248,8 +256,49 @@ Type text.
 
 ```json
 {
-  "text": "notepad"
+  "type": "notepad"
 }
+```
+
+### press ###
+
+Press a key, optionally with modifier keys held. Each element is exactly one key press.
+
+```json
+{
+  "press": "Alt+F4"
+}
+```
+
+A value may also be an array to press several keys in order.
+
+```json
+{
+  "press": ["Ctrl+Alt+G", "X"]
+}
+```
+
+Modifiers can be written as symbols before the key or as names joined with ``+``.
+
+| Symbol | Name      | Modifier |
+|--------|-----------|----------|
+| ``!``  | ``shift`` | Shift    |
+| ``@``  | ``alt``   | Alt      |
+| ``^``  | ``ctrl``  | Ctrl     |
+| ``$``  | ``win``   | Win      |
+
+Names are case-insensitive: ``Alt+A``, ``alt+a`` and ``ALT+A`` all press A while holding Alt. Symbol order does not matter: ``^!X`` and ``!^X`` both press X while holding Ctrl and Shift. The two forms may be combined, for example ``Ctrl+$D``. Additional aliases are ``control`` for Ctrl and ``meta`` or ``cmd`` for Win.
+
+A single character presses that key. A longer value must be one of the named keys: ``F1``-``F15``, ``ENTER``, ``TAB``, ``ESC``, ``BACKSPACE``, ``SPACE``, ``UP``, ``DOWN``, ``LEFT``, ``RIGHT``, ``PAGE_UP``, ``PAGE_DOWN``, ``DELETE``, ``INSERT``, ``HOME``, ``END``, ``CAPS_LOCK``, ``NUM_LOCK``, ``SCROLL_LOCK``, ``PRINTSCREEN``, ``PAUSE``, ``CONTEXT``, ``ADD``, ``MINUS``, ``MULTIPLY``, ``DIVIDE``, ``DECIMAL``, ``SEPARATOR``, ``NEXT``, ``ALT``, ``CTRL``, ``SHIFT``, ``WIN``.
+
+An unknown key name or malformed element fails the step. Use ``--ignore`` to print the error and continue the scenario.
+
+In a script file keys are written as one or more values on a ``PRESS`` line, plain or double-quoted.
+
+```
+PRESS @F4 N
+PRESS "Alt+F4"
+PRESS " "
 ```
 
 ### mouse ###
@@ -320,3 +369,8 @@ Use [Apache Maven](https://maven.apache.org/) to build project.
 ```
 mvn -T 1C package
 ```
+
+## Project Rules ##
+
+- Agents must follow [`docs/GUIDELINES.md`](docs/GUIDELINES.md) as the index of project rules and active documentation.
+- People may browse the [docs directory](docs/) for project documentation.

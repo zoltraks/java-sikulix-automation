@@ -8,6 +8,4 @@ public class Result {
 
     public String jump;
 
-    public String delay;
-
 }

@@ -1,6 +1,5 @@
 package pl.alyx.robot.sikulix.logic;
 
-import org.sikuli.basics.Settings;
 import org.sikuli.script.ImagePath;
 import pl.alyx.robot.sikulix.Result;
 import pl.alyx.robot.sikulix.Context;
@@ -9,8 +8,6 @@ import pl.alyx.robot.sikulix.structure.Scenario;
 import pl.alyx.robot.sikulix.structure.Step;
 import pl.alyx.robot.sikulix.utility.StringUtility;
 
-import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,8 +41,8 @@ public class Flow implements AutoCloseable {
         if (!result.success) {
             if (StringUtility.isNotEmpty(result.error)) {
                 System.out.println(result.error);
-                return false;
             }
+            return context.settings.isIgnore();
         }
         if (StringUtility.isNotEmpty(result.jump)) {
             int labelIndex = findLabel(result.jump);
@@ -77,12 +74,19 @@ public class Flow implements AutoCloseable {
     }
 
     private void reset() {
+        resetState();
+        resolveImagePath();
+    }
+
+    private void resetState() {
         context.state = new State();
         context.state.wait = 3.0;
         context.state.delay = StringUtility.stringToDouble(context.configuration.delay);
 
-        Settings.MinSimilarity = 0.7;
+        org.sikuli.basics.Settings.MinSimilarity = 0.7;
+    }
 
+    private void resolveImagePath() {
         Path path = null;
 
         if (StringUtility.isNotEmpty(context.configuration.path)) {
@@ -108,27 +112,10 @@ public class Flow implements AutoCloseable {
             }
         }
 
-        //ImagePath.setBundlePath("pl.alyx.robot.sikulix.Main/asset");
-        //ImagePath.add("pl.alyx.robot.sikulix.Main/asset");
-        //ImagePath.add("pl.alyx.robot.sikulix/assets");
-        //ImagePath.addJar("pl.alyx.robot.sikulix");
-
         URL dir_url = ClassLoader.getSystemResource("assets");
-        File dir = null;
-        try {
-            dir = new File(dir_url.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+        if (null != dir_url) {
+            ImagePath.add(dir_url);
         }
-//        String[] files = dir.list();
-//        if (state.settings.isVerbose()) {
-//            System.out.println("" +
-//                    String.format("Assets: ") +
-//                    String.join(String.format(" , "), files) +
-//                    ""
-//            );
-//        }
-        ImagePath.add(dir_url);
     }
 
 }
